@@ -171,7 +171,7 @@ export default Vue.extend({
       this.submitButtonStatus.text = '正在提交...'
       this.submitButtonStatus.color = 'secondary'
       try {
-        const response = await fetch('http://localhost:5000/api/Vote', {
+        const response = await fetch('https://bgmnavote.koromo.moe/api/Vote', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

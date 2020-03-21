@@ -84,7 +84,7 @@ export default Vue.extend({
         }
       }
       try {
-        const response = await fetch(`http://localhost:5000/api/Vote?page=${page}&asc=${asc}&orderBy=${orderBy}`)
+        const response = await fetch(`https://bgmnavote.koromo.moe/api/Vote?page=${page}&asc=${asc}&orderBy=${orderBy}`)
         if (!response.ok) {
           throw Error('cannot load data')
         }
