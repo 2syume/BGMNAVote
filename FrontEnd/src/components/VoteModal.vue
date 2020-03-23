@@ -124,7 +124,7 @@ export default Vue.extend({
       return Object.values(UserDatabase).map(t => t.id)
     },
     sayings (): Array<string> {
-      const userId = this.iVoteInfo.userId
+      const userId = this.iVoteInfo.userId as keyof typeof Database
       if (userId in Database) {
         if (this.sayingFilter !== undefined && this.sayingFilter !== '') {
           return Database[userId].filter(t => t.toLowerCase().includes(this.sayingFilter.toLowerCase()))
@@ -135,10 +135,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    getUsername (userId: number) {
-      if (this.userId === -1) {
+    getUsername (userIdNum: number) {
+      if (userIdNum === -1) {
         return ''
       }
+      const userId = userIdNum as keyof typeof UserDatabase
       return UserDatabase[userId].usernameCombined
     },
     submit () {
@@ -156,7 +157,7 @@ export default Vue.extend({
     },
     clearFilter () {
       this.nameFilter = ''
-      this.searchFilter = ''
+      this.sayingFilter = ''
     }
   },
   components: {

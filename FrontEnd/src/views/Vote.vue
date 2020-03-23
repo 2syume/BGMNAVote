@@ -57,19 +57,19 @@ export default Vue.extend({
   name: 'Vote',
   data () {
     return {
-      votedInfos: [] as Array<Vote>,
       submitButtonStatus: {
         text: '提交提名',
         color: 'secondary'
       },
-      currentVoteInfo: { userId: -1, alignment: '', saying: '' }
+      currentVoteInfo: { userId: -1, alignment: '', saying: '' },
+      votedInfos: [] as Array<Vote>
     }
   },
   computed: {
-    canSubmit () {
+    canSubmit (): boolean {
       return this.votedInfos.filter(t => t.userId !== -1).length > 0
     },
-    submitButtonClass () {
+    submitButtonClass (): object {
       return {
         button: true,
         'button-inactive': this.votedInfos.filter(t => t.userId !== -1).length === 0,
@@ -85,8 +85,9 @@ export default Vue.extend({
       const submitInfo = this.votedInfos
         .filter(t => t.userId !== -1)
         .map(t => {
+          const userId = t.userId as keyof typeof UserDatabase
           return {
-            name: UserDatabase[t.userId].usernameCombined,
+            name: UserDatabase[userId].usernameCombined,
             alignment: t.alignment,
             saying: t.saying
           }

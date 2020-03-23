@@ -8,7 +8,7 @@
       </div>
       <div class="left-panel">
         <div class="alignment-line">
-          <div class="major-text">{{voteInfo.alignment}}</div>
+          <div class="alignment-text major-text">{{voteInfo.alignment}}</div>
           <mu-tooltip class="icon-info" placement="top" :content="alignmentInfo">
             <mu-icon value="info"></mu-icon>
           </mu-tooltip>
@@ -68,10 +68,12 @@ export default Vue.extend({
       if (this.voteInfo.userId === -1) {
         return ''
       }
-      return UserDatabase[this.voteInfo.userId].usernameCombined
+      const userId = this.voteInfo.userId as keyof typeof UserDatabase
+      return UserDatabase[userId].usernameCombined
     },
     alignmentInfo () {
-      return AlignmentDatabase[this.voteInfo.alignment]
+      const alignment = this.voteInfo.alignment as keyof typeof AlignmentDatabase
+      return AlignmentDatabase[alignment]
     }
   }
 })
@@ -186,6 +188,7 @@ export default Vue.extend({
   display: flex;
   align-items: center;
   justify-content: center;
+
   .icon-info {
     margin-left: 5px;
     font-size: 1.2rem;
@@ -198,6 +201,11 @@ export default Vue.extend({
     &:hover {
       transition: 0.15s ease;
       opacity: 1;
+    }
+
+    @media only screen and (max-width: 768px) {
+      opacity: 0;
+      pointer-events: none;
     }
   }
 }
