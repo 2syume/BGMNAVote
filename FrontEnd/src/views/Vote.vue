@@ -1,182 +1,103 @@
 <template>
-  <main-outline>
-    <mu-flex direction="column">
-      <div class="vote-form">
-        <h3>投票</h3>
-        <mu-form ref="form" :model="currentInfo" v-on:submit.prevent>
-          <mu-row gutter align-items="center">
-            <mu-col span="3">我提名群员</mu-col>
-            <mu-col span="6">
-              <mu-form-item prop="name" label="群员">
-                <mu-select
-                  v-model="currentInfo.name"
-                  prop="name"
-                  tags
-                  full-width
-                  v-on:change="cleanSaying()"
-                >
-                  <mu-option
-                    v-for="username in usernames"
-                    :key="username"
-                    :label="username"
-                    :value="username"
-                  ></mu-option>
-                </mu-select>
-              </mu-form-item>
-            </mu-col>
-          </mu-row>
+  <div>
+    <transition name="fade">
+      <vote-modal
+        :voteInfo.sync="currentVoteInfo"
+        v-if="currentVoteInfo.alignment!==''"
+        @close="closeModal()"
+      ></vote-modal>
+    </transition>
+    <mu-container class="container-top">
+      <div class="intro">
+        <div class="major-text">BGMNA 第三届群员九宫格活动</div>
+        <div class="minor-text">群成员阵营印象划分——或者说九宫格——是群里的传统活动。主要目的是增进友谊和加深群成员之间的刻板印象。</div>
+        <div class="minor-text">本次投票为提名环节。规则：提名次数不限。提名需要同时提供提名位置和提名台词。</div>
+      </div>
+      <mu-row gutter>
+        <mu-col lg="4" md="6" span="12" v-for="votedInfo in votedInfos" :key="votedInfo.alignment">
+          <alignment-slot
+            class="alignment-slot"
+            :voteInfo="votedInfo"
+            @click.native="showModal(votedInfo)"
+          ></alignment-slot>
+        </mu-col>
+      </mu-row>
+      <mu-row justify-content="center">
+        <mu-col lg="4" md="6" span="12">
           <transition name="fade">
-            <div v-show="usernameChosen">
-              <mu-row gutter align-items="center">
-                <mu-col span="3">我觉得{{currentInfo.name}}的阵营是</mu-col>
-                <mu-col span="6">
-                  <mu-form-item prop="alignment" label="阵营">
-                    <mu-select v-model="currentInfo.alignment" prop="alignment" full-width>
-                      <mu-option
-                        v-for="alignment in alignments"
-                        :key="alignment"
-                        :label="alignment"
-                        :value="alignment"
-                      ></mu-option>
-                    </mu-select>
-                  </mu-form-item>
-                </mu-col>
-              </mu-row>
-              <mu-row gutter align-items="center">
-                <mu-col span="9" offset="3">
-                  <alignment-info :alignment="currentInfo.alignment" />
-                </mu-col>
-              </mu-row>
+            <div :class="submitButtonClass">
+              <span class="button-text" @click="submitAll()">{{ submitButtonStatus.text }}</span>
             </div>
           </transition>
-          <transition name="fade">
-            <mu-row gutter align-items="center" v-show="alignmentChosen">
-              <mu-col span="3">我觉得{{currentInfo.name}}的台词是</mu-col>
-              <mu-col span="6">
-                <mu-form-item prop="saying" label="台词">
-                  <mu-select v-model="currentInfo.saying" prop="saying" tags full-width>
-                    <mu-option
-                      v-for="saying in sayings"
-                      :key="saying"
-                      :label="saying"
-                      :value="saying"
-                    ></mu-option>
-                  </mu-select>
-                </mu-form-item>
-              </mu-col>
-            </mu-row>
-          </transition>
-          <transition name="fade">
-            <mu-row gutter align-items="center" v-show="sayingChosen">
-              <mu-col span="9" offset="3">
-                <mu-button color="primary" v-on:click="addvotedInfo">添加</mu-button>
-              </mu-col>
-            </mu-row>
-          </transition>
-        </mu-form>
-      </div>
-      <transition name="fade">
-        <div v-show="voted">
-          <h3>已投群员</h3>
-          <mu-row gutter align-items="center">
-            <mu-col span="12">
-              <mu-chip
-                class="chip"
-                v-for="(votedInfo, index) in votedInfos"
-                :key="votedInfo.name"
-                @delete="removeVotedInfo(index)"
-                delete
-                color="blue300"
-              >{{votedInfo.name}}</mu-chip>
-            </mu-col>
-          </mu-row>
-          <mu-row gutter align-items="center">
-            <mu-button :color="this.submitButtonStatus.color" v-on:click="submitAll()">{{this.submitButtonStatus.text}}</mu-button>
-          </mu-row>
-        </div>
-      </transition>
-    </mu-flex>
-  </main-outline>
+        </mu-col>
+      </mu-row>
+    </mu-container>
+    <div class="footer">
+      Made by&nbsp;
+      <a href="https://github.com/arition" target="_blank">@arition</a>&nbsp; and &nbsp;
+      <a href="https://github.com/ReventonC" target="_blank">@ReventonC</a>&nbsp; with ❤️️.
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import MainOutline from '../components/MainOutline.vue'
-import { AlignmentInfo, AlignmentDatabase } from '../components/AlignmentInfo.vue'
-import Database from '../assets/database'
+import AlignmentSlot from '../components/AlignmentSlot.vue'
+import VoteModal from '../components/VoteModal.vue'
+import AlignmentDatabase from '../assets/AlignmentDatabase'
 import Vue from 'vue'
+import UserDatabase from '../assets/UserDatabase'
+
+interface Vote {
+  userId: number;
+  saying: string;
+  alignment: string;
+}
 
 export default Vue.extend({
   name: 'Vote',
   data () {
     return {
-      votedInfos: [] as Array<object>,
-      currentInfo: {
-        name: '',
-        alignment: '',
-        saying: ''
-      },
-      database: Database,
+      votedInfos: [] as Array<Vote>,
       submitButtonStatus: {
-        color: 'secondary',
-        text: '提交全部'
-      }
+        text: '提交提名',
+        color: 'secondary'
+      },
+      currentVoteInfo: { userId: -1, alignment: '', saying: '' }
     }
   },
   computed: {
-    usernames (): Array<string> {
-      return Object.keys(this.database)
+    canSubmit () {
+      return this.votedInfos.filter(t => t.userId !== -1).length > 0
     },
-    alignments (): Array<string> {
-      return Object.keys(AlignmentDatabase)
-    },
-    sayings (): Array<string> {
-      const name = this.currentInfo.name as keyof typeof Database
-      if (name in Database) {
-        return Database[name]
+    submitButtonClass () {
+      return {
+        button: true,
+        'button-inactive': this.votedInfos.filter(t => t.userId !== -1).length === 0,
+        'button-secondary': this.votedInfos.filter(t => t.userId !== -1).length > 0 && this.votedInfos.filter(t => t.userId !== -1).length < 9,
+        'button-primary': this.votedInfos.filter(t => t.userId !== -1).length === 9
       }
-      return []
-    },
-    voted (): boolean {
-      return this.votedInfos.length > 0
-    },
-    usernameChosen (): boolean {
-      return this.currentInfo.name !== ''
-    },
-    alignmentChosen (): boolean {
-      return this.currentInfo.alignment !== ''
-    },
-    sayingChosen (): boolean {
-      return this.currentInfo.saying !== ''
     }
   },
   methods: {
-    removeVotedInfo (index: number): void {
-      this.votedInfos.splice(index, 1)
-    },
-    addvotedInfo (): void {
-      const voteInfo = {
-        name: this.currentInfo.name,
-        alignment: this.currentInfo.alignment,
-        saying: this.currentInfo.saying
-      }
-      this.votedInfos.push(voteInfo)
-      this.currentInfo.name = ''
-      this.currentInfo.alignment = ''
-      this.currentInfo.saying = ''
-    },
-    cleanSaying (): void {
-      this.currentInfo.saying = ''
-    },
     async submitAll (): Promise<void> {
       this.submitButtonStatus.text = '正在提交...'
       this.submitButtonStatus.color = 'secondary'
+      const submitInfo = this.votedInfos
+        .filter(t => t.userId !== -1)
+        .map(t => {
+          return {
+            name: UserDatabase[t.userId].usernameCombined,
+            alignment: t.alignment,
+            saying: t.saying
+          }
+        })
       try {
         const response = await fetch('https://bgmnavote.koromo.moe/api/Vote', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(this.votedInfos)
+          body: JSON.stringify(submitInfo)
         })
         if (!response.ok) {
           // console.log(await response.json())
@@ -190,34 +111,149 @@ export default Vue.extend({
         this.submitButtonStatus.text = '发生错误，请联系群管理员'
         this.submitButtonStatus.color = 'error'
       }
+    },
+    showModal (votedInfo: Vote) {
+      this.currentVoteInfo.userId = votedInfo.userId
+      this.currentVoteInfo.saying = votedInfo.saying
+      this.currentVoteInfo.alignment = votedInfo.alignment
+    },
+    closeModal () {
+      const votedInfo = this.votedInfos.filter(t => t.alignment === this.currentVoteInfo.alignment)[0]
+      votedInfo.userId = this.currentVoteInfo.userId
+      votedInfo.saying = this.currentVoteInfo.saying
+
+      this.currentVoteInfo.alignment = ''
+      this.currentVoteInfo.userId = -1
+      this.currentVoteInfo.saying = ''
     }
   },
+  created () {
+    this.votedInfos = Object.keys(AlignmentDatabase).map((val) => {
+      return {
+        userId: -1,
+        saying: '',
+        alignment: val
+      }
+    })
+  },
   components: {
-    MainOutline,
-    AlignmentInfo
+    // AlignmentInfo,
+    VoteModal,
+    AlignmentSlot
   }
 })
 </script>
 
-<style lang="scss">
-.vote-form {
-  width: 100%;
+<style lang="scss" scoped>
+.container-top {
+  margin: {
+    top: 40px;
+    bottom: 40px;
+  }
 }
-.row {
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+.intro {
+  margin: {
+    left: 10px;
+    right: 10px;
+    bottom: 40px;
+  }
 }
+.alignment-slot {
+  padding: 0px;
+}
+.major-text {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 30px;
+  color: #ff4081;
+  margin-bottom: 20px;
+}
+.minor-text {
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgba(60, 60, 60, 0.4);
+}
+
 .fade-enter-active,
 .fade-leave-active {
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.3s ease;
 }
+
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
 }
-.chip {
+
+.button {
+  cursor: pointer;
+  display: flex;
+  border-radius: 10px;
+  padding: 10px;
   margin: {
-    right: 10px;
     bottom: 20px;
+    top: 20px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .button-text {
+    font-weight: bold;
+    margin: auto;
+    width: 100%;
+    text-align: center;
+  }
+
+  &-inactive {
+    pointer-events: none;
+    border: #e4e4e4 1px solid;
+    background-color: #e4e4e4;
+    .button-text {
+      color: #aaaaaa;
+    }
+  }
+
+  &-primary {
+    border: #ff4081 1px solid;
+    background-color: #ff4081;
+    .button-text {
+      color: white;
+    }
+    transition: 0.2s;
+    &:hover {
+      transition: 0.2s;
+      opacity: 0.8;
+    }
+  }
+
+  &-secondary {
+    border: #ff4081 1px solid;
+    background-color: transparent;
+    .button-text {
+      color: #ff4081;
+    }
+    transition: 0.2s;
+
+    &:hover {
+      transition: 0.2s;
+      opacity: 0.8;
+    }
+  }
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: right;
+  width: 100%;
+  padding: 20px;
+  background: #eeeeee;
+  display: none;
+  @media (min-width: 992px) {
+    display: block;
   }
 }
 </style>

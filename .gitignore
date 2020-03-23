@@ -4,6 +4,8 @@
 
 data.db
 database.ts
+UserDatabase.ts
+FrontEnd/public/*.jpg
 grab/
 
 ### Csharp ###

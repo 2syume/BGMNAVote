@@ -1,10 +1,3 @@
-<template>
-  <div class="alignment-text">{{alignmentText}}</div>
-</template>
-
-<script lang="ts">
-import Vue from 'vue'
-
 const AlignmentDatabase = {
   守序善良:
     `守序善良的人物相信，规律而强大的社会和高尚的政府，可以让大多数人民生活得更好。只要人们相信法律，并试着互相帮助，整个社会就将因此而进步。因此，这个阵营的人物将会朝着这个方向努力，他们会尽可能地为大多数人带来较多的福利及较少的伤害。他们必定信守自己的承诺。
@@ -64,27 +57,4 @@ ______(一个动词或动词短语)了，
 吃我大______(一个搞笑的名词)啦！！`
 }
 
-const AlignmentInfo = Vue.extend({
-  name: 'AlignmentInfo',
-  props: { alignment: { type: String } },
-  computed: {
-    alignmentText (): string {
-      const alignment = this.alignment as keyof typeof AlignmentDatabase
-      if (alignment in AlignmentDatabase) {
-        return AlignmentDatabase[alignment]
-      }
-      return ''
-    }
-  }
-})
-
-export default AlignmentInfo
-export { AlignmentInfo, AlignmentDatabase }
-</script>
-
-<style>
-.alignment-text {
-  margin-bottom: 20px;
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-}
-</style>
+export default AlignmentDatabase
