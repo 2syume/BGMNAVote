@@ -12,6 +12,8 @@
         <div class="major-text">BGMNA 第三届群员九宫格活动</div>
         <div class="minor-text">群成员阵营印象划分——或者说九宫格——是群里的传统活动。主要目的是增进友谊和加深群成员之间的刻板印象。</div>
         <div class="minor-text">本次投票为提名环节。规则：提名次数不限。提名需要同时提供提名位置和提名台词。</div>
+        <div class="minor-text"><a href="https://bgmna.org/2019/08/13/alignment-round-one.html" target="_blank">第一次九宫格活动结果</a></div>
+        <div class="minor-text"><a href="https://bgmna.org/2019/08/15/alignment-round-two.html" target="_blank">第二次九宫格活动结果</a></div>
       </div>
       <mu-row gutter>
         <mu-col lg="4" md="6" span="12" v-for="votedInfo in votedInfos" :key="votedInfo.alignment">
