@@ -127,9 +127,11 @@ export default Vue.extend({
       const userId = this.iVoteInfo.userId as keyof typeof Database
       if (userId in Database) {
         if (this.sayingFilter !== undefined && this.sayingFilter !== '') {
-          return Database[userId].filter(t => t.toLowerCase().includes(this.sayingFilter.toLowerCase()))
+          return Database[userId]
+            .filter(t => t.toLowerCase().includes(this.sayingFilter.toLowerCase()))
+            .map(t => t.trim())
         }
-        return Database[userId]
+        return Database[userId].map(t => t.trim())
       }
       return []
     }
@@ -232,7 +234,8 @@ $animation-time: 0.15s;
 .modal-body {
   margin: 0 5px;
   flex-grow: 1;
-  overflow: hidden auto;
+  overflow-X: hidden;
+  overflow-Y: auto;
   position: relative;
 }
 
@@ -265,6 +268,7 @@ $animation-time: 0.15s;
 
   .search {
     flex-grow: 1;
+    max-width: 280px;
     border: none;
     transition: $animation-time ease-in;
     &:focus {
