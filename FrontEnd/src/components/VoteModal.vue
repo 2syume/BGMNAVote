@@ -56,22 +56,13 @@
               <div
                 class="line-container"
                 v-for="saying in sayings"
-                :key="saying"
+                :key="saying.nominateId"
                 @click="setSaying(saying);submit()"
               >
                 <span class="quotation-mark">“</span>
-                <span>{{ saying }}</span>
+                <span>{{ saying.saying }}</span>
               </div>
             </transition-group>
-            <transition name="fade">
-              <div
-                class="button"
-                v-if="sayings.length===0"
-                :class="{'button-inactive': sayingFilter === ''}"
-              >
-                <span class="button-text" @click="setSaying(sayingFilter);submit()">提交自定义台词</span>
-              </div>
-            </transition>
           </simplebar>
         </transition>
       </div>
@@ -92,6 +83,14 @@ interface Vote {
   userId: number;
   saying: string;
   alignment: string;
+  nominateId: number;
+}
+
+interface Nominate {
+  saying: string;
+  alignment: string;
+  nominateId: number;
+  name: string;
 }
 
 interface UserDatabaseRecord {
@@ -122,7 +121,8 @@ export default Vue.extend({
       iVoteInfo: {
         userId: this.voteInfo.userId,
         alignment: this.voteInfo.alignment,
-        saying: this.voteInfo.saying
+        saying: this.voteInfo.saying,
+        nominateId: this.voteInfo.nominateId
       } as Vote,
       nameFilter: '',
       sayingFilter: '',
@@ -136,9 +136,7 @@ export default Vue.extend({
     const response = await fetch(`https://bgmnavote.koromo.moe/api/nominate/${alignmentEncoded}`)
     const json = await response.json()
     this.userDatabase = {} as Record<number, UserDatabaseRecord>
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const nameList = json.map((t: any) => t.name) as Array<string>
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    const nameList = json.map((t: Nominate) => t.name) as Array<string>
     Object.keys(UserDatabase).forEach(keyd => {
       const key = keyd as unknown as keyof typeof UserDatabase
       if (nameList.includes(UserDatabase[key].usernameCombined)) {
@@ -147,7 +145,7 @@ export default Vue.extend({
     })
   },
   asyncComputed: {
-    async allSayings (): Promise<Array<string>> {
+    async allSayings (): Promise<Array<Nominate>> {
       if (this.userDatabase === null || this.userDatabase === undefined || !(this.iVoteInfo.userId in this.userDatabase)) {
         return []
       }
@@ -156,7 +154,7 @@ export default Vue.extend({
       const response = await fetch(`https://bgmnavote.koromo.moe/api/nominate/${alignmentEncoded}/${userEncoded}`)
       const json = await response.json()
       /* eslint-disable @typescript-eslint/no-explicit-any */
-      return [...new Set(json.map((t: any) => t.saying) as Array<string>)]
+      return json as Array<Nominate>
       /* eslint-enable @typescript-eslint/no-explicit-any */
     }
   },
@@ -175,10 +173,9 @@ export default Vue.extend({
       }
       if (this.sayingFilter !== undefined && this.sayingFilter !== '') {
         return this.allSayings
-          .filter(t => t.toLowerCase().includes(this.sayingFilter.toLowerCase()))
-          .map(t => t.trim())
+          .filter(t => t.saying.toLowerCase().includes(this.sayingFilter.toLowerCase()))
       }
-      return this.allSayings.map(t => t.trim())
+      return this.allSayings
     }
   },
 
@@ -200,8 +197,9 @@ export default Vue.extend({
     setUserId (userId: number) {
       this.iVoteInfo.userId = userId
     },
-    setSaying (saying: string) {
-      this.iVoteInfo.saying = saying
+    setSaying (saying: Nominate) {
+      this.iVoteInfo.nominateId = saying.nominateId
+      this.iVoteInfo.saying = saying.saying
     },
     clearFilter () {
       this.nameFilter = ''

@@ -14,7 +14,7 @@
       :loading="dataLoading"
     >
       <template slot-scope="scope" class="fade">
-        <td class="is-right fade">{{scope.row.voteId}}</td>
+        <td class="is-right fade">{{scope.row.nominateId}}</td>
         <td class="fade">{{scope.row.name}}</td>
         <td class="fade">{{scope.row.alignment}}</td>
         <td class="fade">{{scope.row.saying}}</td>

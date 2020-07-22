@@ -12,9 +12,13 @@
         <div class="major-text">BGMNA 第三届群员九宫格活动</div>
         <div class="minor-text">群成员阵营印象划分——或者说九宫格——是群里的传统活动。主要目的是增进友谊和加深群成员之间的刻板印象。</div>
         <div class="minor-text">本次投票为正式投票阶段。</div>
-        <br>
-        <div class="minor-text"><a href="https://bgmna.org/2019/08/13/alignment-round-one.html" target="_blank">第一次九宫格活动结果</a></div>
-        <div class="minor-text"><a href="https://bgmna.org/2019/08/15/alignment-round-two.html" target="_blank">第二次九宫格活动结果</a></div>
+        <br />
+        <div class="minor-text">
+          <a href="https://bgmna.org/2019/08/13/alignment-round-one.html" target="_blank">第一次九宫格活动结果</a>
+        </div>
+        <div class="minor-text">
+          <a href="https://bgmna.org/2019/08/15/alignment-round-two.html" target="_blank">第二次九宫格活动结果</a>
+        </div>
       </div>
       <mu-row gutter>
         <mu-col lg="4" md="6" span="12" v-for="votedInfo in votedInfos" :key="votedInfo.alignment">
@@ -48,23 +52,23 @@ import AlignmentSlot from '../components/AlignmentSlot.vue'
 import VoteModal from '../components/VoteModal.vue'
 import AlignmentDatabase from '../assets/AlignmentDatabase'
 import Vue from 'vue'
-import UserDatabase from '../assets/UserDatabase'
 
 interface Vote {
   userId: number;
   saying: string;
   alignment: string;
+  nominateId: number;
 }
 
 export default Vue.extend({
-  name: 'Round2',
+  name: 'Vote',
   data () {
     return {
       submitButtonStatus: {
         text: '提交投票',
         color: 'secondary'
       },
-      currentVoteInfo: { userId: -1, alignment: '', saying: '' },
+      currentVoteInfo: { userId: -1, alignment: '', saying: '', nominateId: -1 },
       votedInfos: [] as Array<Vote>
     }
   },
@@ -88,11 +92,8 @@ export default Vue.extend({
       const submitInfo = this.votedInfos
         .filter(t => t.userId !== -1)
         .map(t => {
-          const userId = t.userId as keyof typeof UserDatabase
           return {
-            name: UserDatabase[userId].usernameCombined,
-            alignment: t.alignment,
-            saying: t.saying
+            nominateId: t.nominateId
           }
         })
       try {
@@ -120,15 +121,18 @@ export default Vue.extend({
       this.currentVoteInfo.userId = votedInfo.userId
       this.currentVoteInfo.saying = votedInfo.saying
       this.currentVoteInfo.alignment = votedInfo.alignment
+      this.currentVoteInfo.nominateId = votedInfo.nominateId
     },
     closeModal () {
       const votedInfo = this.votedInfos.filter(t => t.alignment === this.currentVoteInfo.alignment)[0]
       votedInfo.userId = this.currentVoteInfo.userId
       votedInfo.saying = this.currentVoteInfo.saying
+      votedInfo.nominateId = this.currentVoteInfo.nominateId
 
       this.currentVoteInfo.alignment = ''
       this.currentVoteInfo.userId = -1
       this.currentVoteInfo.saying = ''
+      this.currentVoteInfo.nominateId = -1
     }
   },
   created () {
@@ -136,7 +140,8 @@ export default Vue.extend({
       return {
         userId: -1,
         saying: '',
-        alignment: val
+        alignment: val,
+        nominateId: -1
       }
     })
   },

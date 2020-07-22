@@ -56,7 +56,7 @@ interface Vote {
 }
 
 export default Vue.extend({
-  name: 'Vote',
+  name: 'Nominate',
   data () {
     return {
       submitButtonStatus: {
