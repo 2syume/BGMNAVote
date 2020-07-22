@@ -19,6 +19,16 @@ const routes = [
     path: '/voteResult',
     name: 'VoteResult',
     component: () => import(/* webpackChunkName: "voteResult" */ '../views/VoteResult.vue')
+  },
+  {
+    path: '/vote',
+    name: 'Vote',
+    component: () => import(/* webpackChunkName: "Vote" */ '../views/Vote.vue')
+  },
+  {
+    path: '/nominate',
+    name: 'Nominate',
+    component: () => import(/* webpackChunkName: "Nominate" */ '../views/Nominate.vue')
   }
 ]
 

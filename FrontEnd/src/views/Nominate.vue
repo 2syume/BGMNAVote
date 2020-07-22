@@ -1,18 +1,17 @@
 <template>
   <div>
     <transition name="fade">
-      <vote-modal
+      <nominate-modal
         :voteInfo.sync="currentVoteInfo"
         v-if="currentVoteInfo.alignment!==''"
         @close="closeModal()"
-      ></vote-modal>
+      ></nominate-modal>
     </transition>
     <mu-container class="container-top">
       <div class="intro">
         <div class="major-text">BGMNA 第三届群员九宫格活动</div>
         <div class="minor-text">群成员阵营印象划分——或者说九宫格——是群里的传统活动。主要目的是增进友谊和加深群成员之间的刻板印象。</div>
-        <div class="minor-text">本次投票为正式投票阶段。</div>
-        <br>
+        <div class="minor-text">本次投票为提名环节。规则：提名次数不限。提名需要同时提供提名位置和提名台词。</div>
         <div class="minor-text"><a href="https://bgmna.org/2019/08/13/alignment-round-one.html" target="_blank">第一次九宫格活动结果</a></div>
         <div class="minor-text"><a href="https://bgmna.org/2019/08/15/alignment-round-two.html" target="_blank">第二次九宫格活动结果</a></div>
       </div>
@@ -45,7 +44,7 @@
 
 <script lang="ts">
 import AlignmentSlot from '../components/AlignmentSlot.vue'
-import VoteModal from '../components/VoteModal.vue'
+import NominateModal from '../components/NominateModal.vue'
 import AlignmentDatabase from '../assets/AlignmentDatabase'
 import Vue from 'vue'
 import UserDatabase from '../assets/UserDatabase'
@@ -57,11 +56,11 @@ interface Vote {
 }
 
 export default Vue.extend({
-  name: 'Round2',
+  name: 'Vote',
   data () {
     return {
       submitButtonStatus: {
-        text: '提交投票',
+        text: '提交提名',
         color: 'secondary'
       },
       currentVoteInfo: { userId: -1, alignment: '', saying: '' },
@@ -96,7 +95,7 @@ export default Vue.extend({
           }
         })
       try {
-        const response = await fetch('https://bgmnavote.koromo.moe/api/Vote', {
+        const response = await fetch('https://bgmnavote.koromo.moe/api/Nominate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -142,7 +141,7 @@ export default Vue.extend({
   },
   components: {
     // AlignmentInfo,
-    VoteModal,
+    NominateModal,
     AlignmentSlot
   }
 })
@@ -178,17 +177,7 @@ export default Vue.extend({
   font-weight: normal;
   font-size: 16px;
   line-height: 24px;
-  color: rgba(60, 60, 60, 0.8);
-}
-
-.minor-text a {
-  color: rgba($color: #333, $alpha: 0.4);
-  transition: 0.2s;
-
-  &:hover {
-    transition: 0.2s;
-    color: #ff4081;
-  }
+  color: rgba(60, 60, 60, 0.4);
 }
 
 .fade-enter-active,

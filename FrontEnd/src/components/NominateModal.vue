@@ -64,11 +64,7 @@
               </div>
             </transition-group>
             <transition name="fade">
-              <div
-                class="button"
-                v-if="sayings.length===0"
-                :class="{'button-inactive': sayingFilter === ''}"
-              >
+              <div class="button" v-if="sayings.length===0" :class="{'button-inactive': sayingFilter === ''}">
                 <span class="button-text" @click="setSaying(sayingFilter);submit()">提交自定义台词</span>
               </div>
             </transition>
@@ -80,6 +76,7 @@
 </template>
 
 <script lang="ts">
+import Database from '../assets/database'
 import UserDatabase from '../assets/UserDatabase'
 import Vue from 'vue'
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
@@ -94,31 +91,19 @@ interface Vote {
   alignment: string;
 }
 
-interface UserDatabaseRecord {
-  firstName: string;
-  id: number;
-  lastName: string;
-  username: string;
-  usernameCombined: string;
-}
-
-type AsyncComputedFields = {
-    allSayings?: Array<string>;
-}
-
 declare let process: {
-  env: {
-    BASE_URL: string;
-  };
+    env: {
+        BASE_URL: string;
+    };
 }
 
 export default Vue.extend({
-  name: 'VoteModal',
+  name: 'NominateModal',
   props: {
     voteInfo: { type: Object as () => Vote }
   },
   data () {
-    const rtn = {
+    return {
       iVoteInfo: {
         userId: this.voteInfo.userId,
         alignment: this.voteInfo.alignment,
@@ -126,62 +111,31 @@ export default Vue.extend({
       } as Vote,
       nameFilter: '',
       sayingFilter: '',
-      publicPath: process.env.BASE_URL,
-      userDatabase: {} as Record<number, UserDatabaseRecord>
-    }
-    return rtn as typeof rtn & AsyncComputedFields
-  },
-  created: async function (): Promise<void> {
-    const alignmentEncoded = encodeURIComponent(this.iVoteInfo.alignment)
-    const response = await fetch(`https://bgmnavote.koromo.moe/api/nominate/${alignmentEncoded}`)
-    const json = await response.json()
-    this.userDatabase = {} as Record<number, UserDatabaseRecord>
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const nameList = json.map((t: any) => t.name) as Array<string>
-    /* eslint-enable @typescript-eslint/no-explicit-any */
-    Object.keys(UserDatabase).forEach(keyd => {
-      const key = keyd as unknown as keyof typeof UserDatabase
-      if (nameList.includes(UserDatabase[key].usernameCombined)) {
-        this.userDatabase[key] = UserDatabase[key]
-      }
-    })
-  },
-  asyncComputed: {
-    async allSayings (): Promise<Array<string>> {
-      if (this.userDatabase === null || this.userDatabase === undefined || !(this.iVoteInfo.userId in this.userDatabase)) {
-        return []
-      }
-      const alignmentEncoded = encodeURIComponent(this.iVoteInfo.alignment)
-      const userEncoded = encodeURIComponent(this.userDatabase[this.iVoteInfo.userId].usernameCombined)
-      const response = await fetch(`https://bgmnavote.koromo.moe/api/nominate/${alignmentEncoded}/${userEncoded}`)
-      const json = await response.json()
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      return [...new Set(json.map((t: any) => t.saying) as Array<string>)]
-      /* eslint-enable @typescript-eslint/no-explicit-any */
+      publicPath: process.env.BASE_URL
     }
   },
   computed: {
     userIds (): Array<number> {
       if (this.nameFilter !== undefined && this.nameFilter !== '') {
-        return Object.values(this.userDatabase)
+        return Object.values(UserDatabase)
           .filter(t => t.usernameCombined.toLowerCase().includes(this.nameFilter.toLowerCase()))
           .map(t => t.id)
       }
-      return Object.values(this.userDatabase).map(t => t.id)
+      return Object.values(UserDatabase).map(t => t.id)
     },
     sayings (): Array<string> {
-      if (this.allSayings === undefined || this.allSayings === null) {
-        return []
+      const userId = this.iVoteInfo.userId as keyof typeof Database
+      if (userId in Database) {
+        if (this.sayingFilter !== undefined && this.sayingFilter !== '') {
+          return Database[userId]
+            .filter(t => t.toLowerCase().includes(this.sayingFilter.toLowerCase()))
+            .map(t => t.trim())
+        }
+        return Database[userId].map(t => t.trim())
       }
-      if (this.sayingFilter !== undefined && this.sayingFilter !== '') {
-        return this.allSayings
-          .filter(t => t.toLowerCase().includes(this.sayingFilter.toLowerCase()))
-          .map(t => t.trim())
-      }
-      return this.allSayings.map(t => t.trim())
+      return []
     }
   },
-
   methods: {
     getUsername (userIdNum: number) {
       if (userIdNum === -1) {
@@ -280,8 +234,8 @@ $animation-time: 0.15s;
 .modal-body {
   margin: 0 5px;
   flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow-X: hidden;
+  overflow-Y: auto;
   position: relative;
 }
 

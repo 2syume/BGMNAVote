@@ -59,11 +59,11 @@ export default Vue.extend({
         data: []
       } as VoteData,
       sort: {
-        name: 'voteId',
+        name: 'nominateId',
         order: 'desc'
       } as Sort,
       columns: [
-        { title: 'Id', name: 'voteId', sortable: true, width: 100 },
+        { title: 'Id', name: 'nominateId', sortable: true, width: 100 },
         { title: '被提名群员', name: 'name', sortable: true },
         { title: '阵营', name: 'alignment', sortable: true },
         { title: '台词', name: 'saying', sortable: false }
@@ -73,7 +73,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    async fetchData (page?: number, orderBy = 'VoteId', asc = false) {
+    async fetchData (page?: number, orderBy = 'NominateId', asc = false) {
       this.dataLoading = true
       if (page === undefined) {
         try {
@@ -84,7 +84,7 @@ export default Vue.extend({
         }
       }
       try {
-        const response = await fetch(`https://bgmnavote.koromo.moe/api/Vote?page=${page}&asc=${asc}&orderBy=${orderBy}`)
+        const response = await fetch(`https://bgmnavote.koromo.moe/api/Nominate?page=${page}&asc=${asc}&orderBy=${orderBy}`)
         if (!response.ok) {
           throw Error('cannot load data')
         }
