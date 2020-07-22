@@ -15,30 +15,30 @@ namespace BGMNANotebookGrab.Controllers
 {
     [EnableCors("AllowAll")]
     [Route("api/[controller]")]
-    public class VoteController : Controller
+    public class NominateController : Controller
     {
         private readonly AlignmentVoteContext _database;
-        private readonly int _itemPerPage = 10;
         private readonly ILogger<NominateController> _logger;
+        private readonly int _itemPerPage = 10;
 
-        public VoteController(AlignmentVoteContext database, ILogger<NominateController> logger)
+        public NominateController(AlignmentVoteContext database, ILogger<NominateController> logger)
         {
             _database = database;
             _logger = logger;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPages(int page = 1, string orderBy = "VoteId", bool asc = true)
+        public async Task<IActionResult> GetPages(int page = 1, string orderBy = "NominateId", bool asc = true)
         {
             page = page < 1 ? 1 : page;
-            var count = await _database.Votes.CountAsync();
+            var count = await _database.Nominates.CountAsync();
             if (count == 0)
                 return Ok(new {maxPage = 0, page = 0, data = new List<Nominate>()});
 
             var maxPage = count / _itemPerPage + 1;
             page = page > maxPage ? maxPage : page;
 
-            var result = _database.Votes.AsQueryable();
+            var result = _database.Nominates.AsQueryable();
             if (string.IsNullOrWhiteSpace(orderBy))
                 return BadRequest($"Invalid {nameof(orderBy)} parameter");
             try
@@ -46,8 +46,7 @@ namespace BGMNANotebookGrab.Controllers
                 orderBy = orderBy[0].ToString().ToUpper() + orderBy.Substring(1);
                 result = asc
                     ? Queryable.OrderBy(result, (dynamic) Utils.Utils.ObjectPropertyExpression<Nominate>(orderBy))
-                    : Queryable.OrderByDescending(result,
-                        (dynamic) Utils.Utils.ObjectPropertyExpression<Nominate>(orderBy));
+                    : Queryable.OrderByDescending(result, (dynamic) Utils.Utils.ObjectPropertyExpression<Nominate>(orderBy));
             }
             catch (ArgumentException)
             {
@@ -67,48 +66,29 @@ namespace BGMNANotebookGrab.Controllers
             return Ok(await _database.Nominates.FindAsync(id));
         }
 
-        [HttpGet("result")]
-        public async Task<IActionResult> GetResult()
+        [HttpGet("{alignment}")]
+        public async Task<IActionResult> GetNominateUser(string alignment)
         {
-            var votes = await _database.Votes.Include(t => t.Nominate).Select(t => t.Nominate).ToListAsync();
-            var alignments = votes.Select(t => t.Alignment).Distinct();
-            var result = alignments.Select(alignment => new
-            {
-                key = alignment,
-                value = votes.Where(vote => vote.Alignment == alignment)
-                    .GroupBy(vote => vote.Name)
-                    .Select(group => new {name = group.Key, count = group.Count()})
-                    .OrderByDescending(t => t.count).First().name
-            }).Select(prevData => new
-            {
-                prevData.key,
-                value = new Dictionary<string, string>
-                {
-                    {
-                        prevData.value,
-                        votes.Where(vote => vote.Alignment == prevData.key && vote.Name == prevData.value)
-                            .GroupBy(vote => vote.Saying)
-                            .Select(group => new {saying = group.Key, count = group.Count()})
-                            .OrderByDescending(t => t.count).First().saying
-                    }
-                }
-            }).ToDictionary(t => t.key, t => t.value);
-            return Ok(result);
+            return Ok(await _database.Nominates.Where(t => t.Alignment == alignment).ToListAsync());
+        }
+
+        [HttpGet("{alignment}/{name}")]
+        public async Task<IActionResult> GetNominateSaying(string alignment, string name)
+        {
+            name = name.Replace("%2F", "/");
+            return Ok(await _database.Nominates.Where(t => t.Alignment == alignment && t.Name == name).ToListAsync());
         }
 
         // POST api/<controller>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] IList<Vote> votes)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<Nominate> nominates)
         {
+            return BadRequest();
             try
             {
                 if (ModelState.IsValid)
                 {
-                    foreach (var vote in votes)
-                    {
-                        vote.Date = DateTime.UtcNow;
-                    }
-                    await _database.Votes.AddRangeAsync(votes);
+                    await _database.Nominates.AddRangeAsync(nominates);
                     await _database.SaveChangesAsync();
                     return Ok();
                 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BGMNANotebookGrab.Models
@@ -8,10 +9,10 @@ namespace BGMNANotebookGrab.Models
     {
         [Key] public int VoteId { get; set; }
 
-        [Required] public string Name { get; set; }
+        [ForeignKey("Nominate")] [Required] public int NominateId { get; set; }
 
-        [Required] public string Saying { get; set; }
+        public Nominate Nominate { get; set; }
 
-        [Required] public string Alignment { get; set; }
+        public DateTime Date { get; set; }
     }
 }

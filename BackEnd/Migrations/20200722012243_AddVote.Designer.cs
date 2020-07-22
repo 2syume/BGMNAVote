@@ -3,14 +3,16 @@ using System;
 using BGMNANotebookGrab.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BGMNANotebookGrab.Migrations
 {
     [DbContext(typeof(AlignmentVoteContext))]
-    partial class AlignmentVoteContextModelSnapshot : ModelSnapshot
+    [Migration("20200722012243_AddVote")]
+    partial class AddVote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

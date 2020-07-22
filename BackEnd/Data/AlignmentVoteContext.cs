@@ -9,6 +9,8 @@ namespace BGMNANotebookGrab.Data
         {
         }
 
+        public DbSet<Nominate> Nominates { get; set; }
+
         public DbSet<Vote> Votes { get; set; }
     }
 }
