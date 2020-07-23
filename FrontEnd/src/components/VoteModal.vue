@@ -102,7 +102,7 @@ interface UserDatabaseRecord {
 }
 
 type AsyncComputedFields = {
-    allSayings?: Array<string>;
+    allSayings?: Array<Nominate>;
 }
 
 declare let process: {
@@ -167,7 +167,7 @@ export default Vue.extend({
       }
       return Object.values(this.userDatabase).map(t => t.id)
     },
-    sayings (): Array<string> {
+    sayings (): Array<Nominate> {
       if (this.allSayings === undefined || this.allSayings === null) {
         return []
       }

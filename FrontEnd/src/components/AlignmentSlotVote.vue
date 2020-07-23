@@ -13,7 +13,7 @@
             <mu-icon value="info"></mu-icon>
           </mu-tooltip>
         </div>
-        <div class="minor-text">点击添加提名</div>
+        <div class="minor-text">点击投票</div>
       </div>
     </div>
     <div v-else class="bg">
@@ -164,7 +164,6 @@ export default Vue.extend({
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 }
 .major-text {
   transition: 0.35s ease;

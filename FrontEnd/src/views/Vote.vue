@@ -22,11 +22,11 @@
       </div>
       <mu-row gutter>
         <mu-col lg="4" md="6" span="12" v-for="votedInfo in votedInfos" :key="votedInfo.alignment">
-          <alignment-slot
+          <alignment-slot-vote
             class="alignment-slot"
             :voteInfo="votedInfo"
             @click.native="showModal(votedInfo)"
-          ></alignment-slot>
+          ></alignment-slot-vote>
         </mu-col>
       </mu-row>
       <mu-row justify-content="center">
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import AlignmentSlot from '../components/AlignmentSlot.vue'
+import AlignmentSlotVote from '../components/AlignmentSlotVote.vue'
 import VoteModal from '../components/VoteModal.vue'
 import AlignmentDatabase from '../assets/AlignmentDatabase'
 import Vue from 'vue'
@@ -148,7 +148,7 @@ export default Vue.extend({
   components: {
     // AlignmentInfo,
     VoteModal,
-    AlignmentSlot
+    AlignmentSlotVote
   }
 })
 </script>
