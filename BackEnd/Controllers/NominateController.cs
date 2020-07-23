@@ -76,7 +76,11 @@ namespace BGMNANotebookGrab.Controllers
         public async Task<IActionResult> GetNominateSaying(string alignment, string name)
         {
             name = name.Replace("%2F", "/");
-            return Ok(await _database.Nominates.Where(t => t.Alignment == alignment && t.Name == name).ToListAsync());
+            return Ok((await _database.Nominates
+                .Where(t => t.Alignment == alignment && t.Name == name).ToListAsync())
+                .GroupBy(t => t.Saying)
+                .Select(t => t.First())
+                .ToList());
         }
 
         // POST api/<controller>
