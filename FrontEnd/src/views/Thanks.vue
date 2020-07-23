@@ -4,8 +4,8 @@
       <mu-row justify-content="center" align-items="center">
         <mu-col class="thanks-content" lg="6" span="12">
           <mu-flex direction="column" justify-content="center" align-items="center">
-            <div class="major-text text">提名完成</div>
-            <div class="minor-text text">感谢您的提名！请等待后续的投票环节。</div>
+            <div class="major-text text">投票完成</div>
+            <div class="minor-text text">感谢您的投票！</div>
           </mu-flex>
         </mu-col>
         <mu-col class="thanks-content yotsuba-container" lg="6" span="12">
