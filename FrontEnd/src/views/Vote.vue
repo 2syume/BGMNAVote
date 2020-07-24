@@ -263,16 +263,21 @@ export default Vue.extend({
 }
 
 .footer {
-  position: fixed;
+  opacity: 0.7;
+  font-size: 12px;
   bottom: 0;
   width: 100%;
   text-align: right;
   width: 100%;
-  padding: 20px;
-  background: #eeeeee;
-  display: none;
+  padding: 10px 20px;
   @media (min-width: 992px) {
-    display: block;
+    position: fixed;
+  }
+
+  transition: 0.2s;
+  &:hover {
+    opacity: 1;
+    transition: 0.2s;
   }
 }
 </style>
